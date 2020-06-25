@@ -40,7 +40,7 @@ CREATE INDEX on object(typ) where typ != 'track';
 CREATE TABLE homebase(
 	controller text primary key,
 	position geometry(point, 3857 )
-)
+);
 
 
 CREATE  TABLE checkpoints_players( player_name text, cp_name text references object(name),
