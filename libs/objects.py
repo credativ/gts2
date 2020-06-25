@@ -1,4 +1,4 @@
-import sprites
+from libs import sprites
 
 class drawableobject():
 	def __init__(self, _id, position):

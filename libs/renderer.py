@@ -3,7 +3,7 @@
 
 
 import pygame
-import db
+from libs import db
 import json
 from random import random
 import sys
@@ -12,14 +12,14 @@ import multiprocessing
 #import cairo
 
 
-import rastermap
+from libs import rastermap
 import time
 #import datetime
 #import cPickle
 #import psycopg2
-from sprites import Sprite
-from objectmanager import objectmanager
-from objects import drawableobject
+from libs.sprites import Sprite
+from libs.objectmanager import objectmanager
+from libs.objects import drawableobject
 
 import collections
 
@@ -42,16 +42,16 @@ def logQ(txt):
 	return txt
 
 class objectpuller( threading.Thread):
-        def __init__(self,centerobject, objectman, username):
-                threading.Thread.__init__(self)
-                self.centerobject = centerobject
+	def __init__(self,centerobject, objectman, username):
+		threading.Thread.__init__(self)
+		self.centerobject = centerobject
 		self.objectman = objectman
 		self.username=username
 		conn = db.pool.getconn()
 		curs = conn.cursor()
 		self.hold=True
 		pos=(0,0)
-		print pos
+		print(pos)
 		curs.close()
 		db.pool.putconn( conn )
 	def run(self):
@@ -98,8 +98,8 @@ class objectpuller( threading.Thread):
 					del(self.objectman.objectlist[x])
 				self.objectman.lock.release()
 			except Exception as e:
-				print e
-				print "Environmenter phase1"
+				print(e)
+				print("Environmenter phase1")
 				pos=(0,0)
 
 			try:
@@ -120,8 +120,8 @@ class objectpuller( threading.Thread):
 						self.objectman.currentstreet = street[0]
 
 			except Exception as e:
-				print e
-				print "environmenter phase 2"
+				print(e)
+				print("environmenter phase 2")
 			curs.close()
 			db.pool.putconn( conn )
 
@@ -135,7 +135,7 @@ class ticker( threading.Thread ):
 			time.sleep(0.018)
 			conn = db.pool.getconn()
 			cursor = conn.cursor()
-                        try:
+			try:
 			    logQ("SELECT tick(%s))")##Still havent migrated the tick to a function.. Lets pretend for demonstrational purposes
 			    cursor.execute("""UPDATE object o SET 
                inertia=
@@ -148,13 +148,13 @@ class ticker( threading.Thread ):
                         AND typ in ('pedestrian','car', 'bullet')
                         AND ( age(now(),modification)> interval '10 milliseconds')
                  ;""", )
-                        except:
-                            pass
-                        try:
+			except:
+			    pass
+			try:
 			    cursor.close()
 			    conn.commit()
-                        except:
-                            pass
+			except:
+			    pass
 			db.pool.putconn(conn)
 	
 
@@ -170,13 +170,13 @@ class environmenter(threading.Thread):
 			currentRequest = None
 			conn=db.pool.getconn()
 			conn.set_session( autocommit = True )	
-                        #print("Environmenter pulled connection")
-                        try:
+			#print("Environmenter pulled connection")
+			try:
 				time.sleep(0.01)
 				if not self.rasterpool._requestqueue:
 					time.sleep(.05)
 					self.rasterpool.cleanup()
-                                        raise Exception("Nothing to do..")
+					raise Exception("Nothing to do..")
 					continue
 				#print len(self.rasterpool._requestqueue)
 				if 1:
@@ -185,7 +185,7 @@ class environmenter(threading.Thread):
 					_pos=self.rasterpool.getRequest(self)
 					currentRequest = _pos
 					if _pos == None:
-                                                raise Exception ("Nothing to do")
+						raise Exception ("Nothing to do")
 						continue
 					#conn=db.pool.getconn()
 					#conn.set_session( autocommit = True )
@@ -217,18 +217,18 @@ class environmenter(threading.Thread):
 				#print "vvvvv"
 				#print e
 				#print "Environmenter ERROR"
-                                #import traceback
-                                #traceback.print_exc()
+				#import traceback
+				#traceback.print_exc()
 				#self.rasterpool.releaseRequest( currentRequest )
                                 #time.sleep(0.02)
-                                pass
-                        #print("Environmenter gave connection")
-                 	self.rasterpool.releaseRequest( currentRequest )
-                        try:
-                            conn.commit()
+				pass
+			#print("Environmenter gave connection")
+			self.rasterpool.releaseRequest( currentRequest )
+			try:
+			    conn.commit()
 			    curs.close()
-                        except:
-                            pass
+			except:
+			    pass
 			db.pool.putconn(conn)
 			time.sleep(0.02)
 
@@ -255,10 +255,10 @@ class game:
 		self.forkme = Sprite('images/forkme.png',(298,298), True)
 		self.GTS_OVERVIEW = Sprite('images/GTS_OVERVIEW.png',self.size, False)
 
-                self._overviewmap = None
-                self._overviewboundslower=None
-                self._overviewboundsupper=None
-                self._overviewsize=None
+		self._overviewmap = None
+		self._overviewboundslower=None
+		self._overviewboundsupper=None
+		self._overviewsize=None
 
 		self.lastactivity = time.time()
 
@@ -312,7 +312,7 @@ class game:
 		fieldsx =  dx/(self.rastermap.pixpermap[0]*size)
 		fieldsy =  dy/(self.rastermap.pixpermap[1]*size)
 		for _x in range(0, int(dx), self.rastermap.pixpermap[0]*size):
-			print "LINE"
+			print("LINE")
 		
 			for _y in range(0, int(dy), self.rastermap.pixpermap[1]*size):
 				for readahead in range(1,8-len( self.rastermap._requestqueue ) ):
@@ -330,8 +330,8 @@ class game:
 				self.screen.blit( self._map,(0,0))
 				self.LoadToScreen()
 				pygame.display.flip()
-		print "----"
-		print l
+		print("----")
+		print(l)
 		#time.sleep(99999)
 
 	def initBoundingBox(self):
@@ -348,9 +348,9 @@ class game:
 		db.pool.putconn( conn )
 
 	def generateMap(self):
-    		self.rastermap.setZoom(5)
-                mapsize=(200,200)
-                self._overviewsize=mapsize
+		self.rastermap.setZoom(5)
+		mapsize=(200,200)
+		self._overviewsize=mapsize
 		self._overviewmap = pygame.Surface(mapsize, pygame.SRCALPHA, 32 )
 		self._overviewmap.fill((0,20,0,255))
 		conn=db.pool.getconn()
@@ -358,20 +358,20 @@ class game:
 		self.initBoundingBox()
 		smallest = self.bblower
 		biggest = self.bbupper
-                self._overviewboundslower=smallest
-                self._overviewboundsupper=biggest
+		self._overviewboundslower=smallest
+		self._overviewboundsupper=biggest
 
 		boundingsize=(biggest[0]-smallest[0], biggest[1]-smallest[1])
 		scale= (mapsize[0]/boundingsize[0], mapsize[1]/boundingsize[1])
 
-                curs.execute(logQ("""select unaccent(name), round(st_area(way)), st_asgeojson( way ), st_asgeojson( st_centroid(way) ),'polygon'  from (SELECT * FROM planet_osm_polygon where boundary = 'administrative' and name not ilike '%kreis%'  order by round(st_area(way)) desc limit 50 ) a
+		curs.execute(logQ("""select unaccent(name), round(st_area(way)), st_asgeojson( way ), st_asgeojson( st_centroid(way) ),'polygon'  from (SELECT * FROM planet_osm_polygon where boundary = 'administrative' and name not ilike '%kreis%'  order by round(st_area(way)) desc limit 50 ) a
 		UNION ALL
 		SELECT unaccent(name), 0, st_asgeojson(way), '', 'line' FROM planet_osm_line WHERE highway is not null and highway in('primary','motorway_link',  'motorway')
 """))
 		regions=curs.fetchall()
 		names=dict()
 		for region in regions:
-			print "Worked on %s" %region[0]
+			print("Worked on %s" %region[0])
 			pts=[]
 			typ = region[4]
 			#print typ
@@ -396,8 +396,8 @@ class game:
 		#for cityname in names:
 		#	self.putText( cityname, self._overviewmap, names[cityname] )  
 		#randompos = ( 
-                #         smallest[0]+(boundingsize[0]*0.25)+random()*0.5*boundingsize[0],
-                #         smallest[1]+(boundingsize[1]*0.25)+random()*0.5*boundingsize[1])
+		#         smallest[0]+(boundingsize[0]*0.25)+random()*0.5*boundingsize[0],
+		#         smallest[1]+(boundingsize[1]*0.25)+random()*0.5*boundingsize[1])
 		#crosspos = self.normalize( randompos, smallest, scale)
 		#pygame.draw.lines(self._overviewmap, (255,0,0), True,[(crosspos[0]-7, crosspos[1]-7),(crosspos[0]+7, crosspos[1]-7), (crosspos[0]+7, crosspos[1]+7),(crosspos[0]-7, crosspos[1]+7) ] , 2)
 		#self.putText( "you", self._map, crosspos, (0,0,255))	
@@ -425,14 +425,14 @@ class game:
 		boundingsize=(biggest[0]-smallest[0], biggest[1]-smallest[1])
 		scale= (self.size[0]/boundingsize[0], self.size[1]/boundingsize[1])
 
-                curs.execute(logQ("""select unaccent(name), round(st_area(way)), st_asgeojson( way ), st_asgeojson( st_centroid(way) ),'polygon'  from (SELECT * FROM planet_osm_polygon where boundary = 'administrative' and name not ilike '%kreis%'  order by round(st_area(way)) desc limit 50 ) a
+		curs.execute(logQ("""select unaccent(name), round(st_area(way)), st_asgeojson( way ), st_asgeojson( st_centroid(way) ),'polygon'  from (SELECT * FROM planet_osm_polygon where boundary = 'administrative' and name not ilike '%kreis%'  order by round(st_area(way)) desc limit 50 ) a
 		UNION ALL
 		SELECT unaccent(name), 0, st_asgeojson(way), '', 'line' FROM planet_osm_line WHERE highway is not null and highway in('primary','motorway_link',  'motorway')
 """))
 		regions=curs.fetchall()
 		names=dict()
 		for region in regions:
-			print "Worked on %s" %region[0]
+			print("Worked on %s" %region[0])
 			pts=[]
 			typ = region[4]
 			#print typ
@@ -510,7 +510,7 @@ class game:
 					conn.commit()
 
 
-                                if pygame.key.get_pressed()[pygame.K_p]:
+				if pygame.key.get_pressed()[pygame.K_p]:
 					self.CACHEMODE=True			
 					self.rastermap.setZoom(0.25)
 				if pygame.key.get_pressed()[pygame.K_x]:
@@ -544,7 +544,7 @@ class game:
 			db.pool.putconn(conn)
 
 		except Exception as e:
-			print e
+			print(e)
 			curs.close()
 			conn.commit()
 			db.pool.putconn(conn)
@@ -590,7 +590,7 @@ class game:
 		x = renderrect_lower[0]
 		imgsize = (self.rastermap.pixpermap[0]*zoom,
 				 self.rastermap.pixpermap[1]*zoom)
-                loopcount = 0
+		loopcount = 0
 		while x < renderrect_upper[0]:
 			y=renderrect_lower[1]
 			while y < renderrect_upper[1]:
@@ -635,8 +635,8 @@ class game:
 					self.putText('%s [%s]'%( drawable, int(obj.hp) ), self.screen, (pos[0]-10, pos[1]+20), (0,0,255))
 			self.objectmanager.lock.release()
 		except Exception as e:
-			print e
-			print "Could not draw objects. Possible concurrency issue"
+			print(e)
+			print("Could not draw objects. Possible concurrency issue")
 			self.objectmanager.lock.release()
 		self.LoadToScreen()
 		try:
@@ -646,7 +646,7 @@ class game:
 			self.putText('%s'% ( self.objectmanager.currentstreet,),
 					 self.screen, (self.size[0]/2 - 100, self.size[1]/2 + 100), (255,0, 0))
 		except:
-			print "issue rendering FPS or Street"
+			print("issue rendering FPS or Street")
 		self.activelogo.xpos = (self.activelogo.xpos+2)%100
 
 		for x in self.envpool:
@@ -658,39 +658,39 @@ class game:
 				a.start()
 		#if time.time() - self.lastactivity > 20:
 		#	self.screen.blit( self.GTS_OVERVIEW.image, (0,0) )
-                try:
-                    if self._overviewmap == None:
-                        self.generateMap()
-                    self.screen.blit( self._overviewmap,(10,10) )
-                    nx = self.userpos[0] - self._overviewboundslower[0]
-                    ny = self.userpos[1] - self._overviewboundslower[1]
+		try:
+		    if self._overviewmap == None:
+		        self.generateMap()
+		    self.screen.blit( self._overviewmap,(10,10) )
+		    nx = self.userpos[0] - self._overviewboundslower[0]
+		    ny = self.userpos[1] - self._overviewboundslower[1]
 
 
-                    facx = self._overviewboundsupper[0] - self._overviewboundslower[0]
-                    facy = self._overviewboundsupper[1] - self._overviewboundslower[1]
+		    facx = self._overviewboundsupper[0] - self._overviewboundslower[0]
+		    facy = self._overviewboundsupper[1] - self._overviewboundslower[1]
 
-                    nx = 10+(nx / facx)*200.
-                    ny = 10+(ny / facy)*200.
+		    nx = 10+(nx / facx)*200.
+		    ny = 10+(ny / facy)*200.
 
 
-                    crosspos=( nx, ny)
-                    #print(crosspos)
+		    crosspos=( nx, ny)
+		    #print(crosspos)
 		    pygame.draw.lines( self.screen, (255,0,0),
                                 True,[(crosspos[0]-5, crosspos[1]-5),(crosspos[0]+5, crosspos[1]-5), (crosspos[0]+5, crosspos[1]+5),(crosspos[0]-5, crosspos[1]+5) ] , 2)
 	
-                except Exception as e:
-                    print("Could not draw map")
-                    print(e)
-                try:
-                    offset=0
-                    for element in querylog:
-                        #continue
-                        offset+=15
+		except Exception as e:
+		    print("Could not draw map")
+		    print(e)
+		try:
+		    offset=0
+		    for element in querylog:
+		        #continue
+		        offset+=15
 		        self.putText('%s'% ( element ),
 		    	    self.screen, (10,790-offset), (255,255, 255))
-                except Exception as e:
-                    print(e)
-                    pass
+		except Exception as e:
+		    print(e)
+		    pass
 
 		self.screen.blit( self.forkme.image, (self.size[0]-self.forkme.image.get_width(),0) )
 
