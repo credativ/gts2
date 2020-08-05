@@ -1,4 +1,4 @@
-from sprites import Sprite
+from libs.sprites import Sprite
 from threading import Semaphore
 import time
 class raster():
@@ -64,8 +64,8 @@ class rastermap():
 		if len(self._contents.keys()) > self.pool:
 			self.evict()
 		if len(self._contents.keys()) > self.pool:
-			print "Cache is still oversized."
-			print "Second round of evict!"
+			print("Cache is still oversized.")
+			print("Second round of evict!")
 			self.evict()
 		self.clock()
 		self._contents[raster.position] = raster
@@ -74,8 +74,8 @@ class rastermap():
 			del self._requestqueue[raster.position]
 			self._inflightqueue.remove(raster.position)	
 		except Exception as e:
-			print e
-			print "COULD NOT REMOVE REQUEST!"
+			print(e)
+			print("COULD NOT REMOVE REQUEST!")
 	def get(self, position, defaultIfNone=True, waitforimage=False):
 		#self.lock.acquire()
 		self._totalgets = self._totalgets+1
@@ -120,7 +120,7 @@ class rastermap():
 		del self._contents[smallest.position]
 
 if __name__ == '__main__':
-	print "Testing Rastermap"
+	print("Testing Rastermap")
 	attempts = 50*1000
 	m = rastermap()
 	while attempts > 0:

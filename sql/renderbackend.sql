@@ -3,7 +3,7 @@ truncate rc.frontendcache;
 
 CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , pixpermapx numeric, pixpermapy numeric,  zoomx float, zoomy float, transparency bool default False )
 	RETURNS void
-	language plpythonu
+	language plpython3u
 	as $$
                                     try:
                                         import cairo
@@ -30,7 +30,7 @@ CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , 
                                                 items = cursor.fetch(1)
                                                 if not items:
                                                         break
-						item = items[0]
+                                                item = items[0]
                                                 #(qid, qway, qtags, qzlevel, qcolor,qlwidth, qwidth, qkey, qvalue, zorder) =item
                                                 qid = item['osm_id']
                                                 qway = item['js']
@@ -58,10 +58,10 @@ CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , 
                                                                                 #g.append( (float(agrp[0]),float(agrp[1])))
                                                                                 g.append(( (grp[0]-float(_posx))/zoomx , (grp[1]-float(_posy))/zoomy))
                                                                         except Exception as e:
-                                                                                print e
-                                                                                print "could not parse"
+                                                                                print(e)
+                                                                                print("could not parse")
                                                                 if len(g) <= 3:
-                                                                        print "skipping"
+                                                                        print("skipping")
                                                                         continue
                                                                 w = float(qwidth)/float(zoomx)
 
@@ -84,8 +84,8 @@ CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , 
                                                                         w=float(qlwidth)+qwidth
                                                                         w=w/zoomx
                                                         except Exception as e:
-                                                                print e
-                                                                print "Meh, broken"
+                                                                print(e)
+                                                                print("Meh, broken")
                                                         g=[]
                                                         for grp in jsonway['coordinates']:
                                                                 try:
@@ -93,11 +93,11 @@ CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , 
                                                                         #g.append( (float(agrp[0]),float(agrp[1])))
                                                                         g.append( ((grp[0]-float(_posx ))/zoomx , (grp[1]-float(_posy))/zoomy))
                                                                 except Exception as e:
-                                                                        print e
+                                                                        print(e)
                                                                         traceback.print_exc()
                                                                         #print "could not parse"
                                                         if len(g) < 2:
-                                                                print "skipping"
+                                                                print("skipping")
                                                                 continue
                                                         ctx.set_source_rgb( float(color[0])/255.0, float(color[1])/255.0, float(color[2])/255.0)
                                                         ctx.set_line_width(int(float(w) ) ) # DAFUQ? CASTMANIA!
@@ -107,11 +107,11 @@ CREATE OR REPLACE FUNCTION renderbackend_tracks( _posx numeric, _posy numeric , 
                                                         ctx.stroke()
 
                                         #q.put( pygame.image.tostring(rasterimg, 'RGBA') )
-					plan = plpy.prepare("INSERT INTO frontendcache(x,y,zoom,data) VALUES ($1,$2,$3,$4) on conflict do nothing", ["numeric", "numeric", "numeric", "text"])
-					plpy.execute(plan, [_posx, _posy, zoomx, pygame.image.tostring(rasterimg, 'RGBA').encode('hex')   ] ) 
+                                        plan = plpy.prepare("INSERT INTO frontendcache(x,y,zoom,data) VALUES ($1,$2,$3,$4) on conflict do nothing", ["numeric", "numeric", "numeric", "text"])
+                                        plpy.execute(plan, [_posx, _posy, zoomx, pygame.image.tostring(rasterimg, 'RGBA').encode('hex')   ] ) 
                                         return
                                     except Exception as e:
-                                        print e
+                                        print(e)
                                         traceback.print_exc()
                                         #print "RENDERISSUE"
                                         return
@@ -122,7 +122,7 @@ $$;
 
 CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixpermapx numeric, pixpermapy numeric,  zoomx float, zoomy float, transparency bool default False )
 	RETURNS void
-	language plpythonu
+	language plpython3u
 	as $$
                                     try:
                                         import cairo
@@ -149,7 +149,7 @@ CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixperm
                                                 items = cursor.fetch(1)
                                                 if not items:
                                                         break
-						item = items[0]
+                                                item = items[0]
                                                 #(qid, qway, qtags, qzlevel, qcolor,qlwidth, qwidth, qkey, qvalue, zorder) =item
                                                 qid = item['osm_id']
                                                 qway = item['js']
@@ -177,10 +177,10 @@ CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixperm
                                                                                 #g.append( (float(agrp[0]),float(agrp[1])))
                                                                                 g.append(( (grp[0]-float(_posx))/zoomx , (grp[1]-float(_posy))/zoomy))
                                                                         except Exception as e:
-                                                                                print e
-                                                                                print "could not parse"
+                                                                                print(e)
+                                                                                print("could not parse")
                                                                 if len(g) <= 3:
-                                                                        print "skipping"
+                                                                        print("skipping")
                                                                         continue
                                                                 w = float(qwidth)/float(zoomx)
 
@@ -203,8 +203,8 @@ CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixperm
                                                                         w=float(qlwidth)+qwidth
                                                                         w=w/zoomx
                                                         except Exception as e:
-                                                                print e
-                                                                print "Meh, broken"
+                                                                print(e)
+                                                                print("Meh, broken")
                                                         g=[]
                                                         for grp in jsonway['coordinates']:
                                                                 try:
@@ -212,19 +212,19 @@ CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixperm
                                                                         #g.append( (float(agrp[0]),float(agrp[1])))
                                                                         g.append( ((grp[0]-float(_posx ))/zoomx , (grp[1]-float(_posy))/zoomy))
                                                                 except Exception as e:
-                                                                        print e
+                                                                        print(e)
                                                                         traceback.print_exc()
                                                                         #print "could not parse"
                                                         if len(g) < 2:
-                                                                print "skipping"
+                                                                print("skipping")
                                                                 continue
                                                         ctx.set_source_rgb( float(color[0])/255.0, float(color[1])/255.0, float(color[2])/255.0)
                                                         ctx.set_line_width(int(float(w) ) ) # DAFUQ? CASTMANIA!
                                                         ctx.move_to( g[0][0], g[0][1] )
-							ctx.set_line_cap(cairo.LINE_CAP_ROUND )
+                                                        ctx.set_line_cap(cairo.LINE_CAP_ROUND )
                                                         ctx.set_line_join( cairo.LINE_JOIN_ROUND )
                                                         if qwidth == 1:
-							    ctx.set_dash( [ 5./zoomx,10./zoomx ] )
+                                                                ctx.set_dash( [ 5./zoomx,10./zoomx ] )
                                                         for p in g[1:]:
                                                                 ctx.line_to( p[0], p[1] )
                                                         ctx.stroke()
@@ -232,11 +232,11 @@ CREATE OR REPLACE FUNCTION renderbackend( _posx numeric, _posy numeric , pixperm
 
 
                                         #q.put( pygame.image.tostring(rasterimg, 'RGBA') )
-					plan = plpy.prepare("INSERT INTO frontendcache(x,y,zoom,data) VALUES ($1,$2,$3,$4) on conflict do nothing", ["numeric", "numeric", "numeric", "text"])
-					plpy.execute(plan, [_posx, _posy, zoomx, pygame.image.tostring(rasterimg, 'RGBA').encode('hex')   ] ) 
+                                        plan = plpy.prepare("INSERT INTO frontendcache(x,y,zoom,data) VALUES ($1,$2,$3,$4) on conflict do nothing", ["numeric", "numeric", "numeric", "text"])
+                                        plpy.execute(plan, [_posx, _posy, zoomx, pygame.image.tostring(rasterimg, 'RGBA').encode('hex')   ] ) 
                                         return
                                     except Exception as e:
-                                        print e
+                                        print(e)
                                         traceback.print_exc()
                                         #print "RENDERISSUE"
                                         return

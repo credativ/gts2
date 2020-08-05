@@ -42,7 +42,7 @@ if args.osmstats:
 	OSM().stats()
 	sys.exit(0)
 
-print "Launching Game"
+print("Launching Game")
 from libs import renderer
 from libs import db
 #import pygame
@@ -54,7 +54,7 @@ cursor=conn.cursor()
 cursor.execute(" SELECT * FROM object WHERE name = %s ", (args.username,)); 
 
 if (args.forcespawn or cursor.rowcount < 1 ):
-	print "Executing MapSelector"
+	print("Executing MapSelector")
 	newspawnlocation = game.spawnselector(args.username)
 	time.sleep(3)
 	#print "You chose %s"% (newspawnlocation)
@@ -68,16 +68,16 @@ cursor.execute("""SELECT o.name, p.name, st_asgeojson(o.position)
 user = cursor.fetchone()
 try:
 	game.userpos = json.loads(user[2])['coordinates']
-	print "Your Account '%s' is located at %s near %s" % (user[0], game.userpos, user[1])
+	print("Your Account '%s' is located at %s near %s" % (user[0], game.userpos, user[1]))
 except:
-	print "Please spawn first (-F)"
+	print("Please spawn first (-F)")
 	renderer.panic=True
 	sys.exit(1)
 cursor.close()
 conn.commit()
 db.pool.putconn(conn)
 game.initbg()
-print "Entering MainLoop"
+print("Entering MainLoop")
 while True:
 	game.getKeys()
 	game.finishFrame()
