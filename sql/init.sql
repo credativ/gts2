@@ -10,6 +10,4 @@
 \i renderbackend.sql
 --\i frontend.sql
 
-SELECT 'GrandTheftSchema defaults to schema RC.
-Please make sure the GTS search-path contains RC.
-e.G: ALTER ROLE gtsuser SET SEARCH PATH to RC, public' "ImportantNote";
+alter database gts set search_path = rc, public;
