@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from libs import db
 import os
 import psycopg2
